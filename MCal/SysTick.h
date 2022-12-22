@@ -27,6 +27,13 @@
 #define SYSCTL_RCC_XTAL_16MHZ                 0x00000540  
 #define NUMBER_OF_OVERFLOWS_PER_SECOND 
 
+#define ENABLE 					0
+#define TICKINT					1
+#define CLKSOURCE				(uint32_t)2
+#define COUNTFLAG				(uint32_t) 16
+
+#define MSTK_SINGLE_INTERVAL    0
+#define MSTK_PERIOD_INTERVAL    1
 
 #define STCTRL                              *((volatile uint32_t *) CORTEX_PERI_BASE_ADDRESS + 0x010)
 #define STRELOAD                            *((volatile uint32_t *) CORTEX_PERI_BASE_ADDRESS + 0x014)
@@ -73,8 +80,34 @@ void SysTick_Init(void);
 * \Parameters (out): None                                                      
 * \Return value:   : None
 *******************************************************************************/
- void SysTick_Handler(void);
- 
+void SysTick_Handler(void);
+/******************************************************************************
+* \Syntax          : 
+* \Description     :  
+*                                                       
+*                                                                             
+* \Sync\Async      :                                                
+* \Reentrancy      :                                             
+* \Parameters (in) : None                     
+* \Parameters (out): None                                                      
+* \Return value:   : None
+*******************************************************************************/
+
+void STK_SetWait1mSec(void);
+/******************************************************************************
+* \Syntax          : 
+* \Description     :  
+*                                                       
+*                                                                             
+* \Sync\Async      :                                                
+* \Reentrancy      :                                             
+* \Parameters (in) : None                     
+* \Parameters (out): None                                                      
+* \Return value:   : None
+*******************************************************************************/
+
+void STK_SetWait(uint32_t Time);
+
  
 #endif  /* SYSTICK_H */
 
