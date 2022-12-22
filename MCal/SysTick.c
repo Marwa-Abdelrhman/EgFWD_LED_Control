@@ -14,7 +14,8 @@
  *********************************************************************************************************************/
 #include <stdint.h>
 #include "TM4C123GH6PM.h"
-#include "SysTick.h"
+#include "/MCal/SysTick.h"
+#include "bit_maths.h"
 
 
 /**********************************************************************************************************************
@@ -30,6 +31,9 @@
  *********************************************************************************************************************/
 static void (*SysTick_OVF_CBK_Ptr)(void)=NULL;
 
+
+/* Define Variable for interval mode */
+static uint8_t MSTK_u8ModeOfInterval;
 /**********************************************************************************************************************
  *  LOCAL FUNCTION PROTOTYPES
  *********************************************************************************************************************/
@@ -58,13 +62,10 @@ void SysTick_Init(void)
 	 * clock source Precision internal oscillator (PIOSC) divided by 4
 	 * enable counter
 	 */
-	  STCTRL = 0x00000007;
-	/*value = 128*/
-  	STRELOAD = 0x00000080;
-	/*one second delay relaod value at 16 MHz
-	STRELOAD = 0x00F423FF;*/
-	 /*Call back pointer at timer overflow*/
-    SysTick_OVF_CBK_Ptr=SysTick_Cbk_ptr;
+	/*SET_BIT(STCTRL,ENABLE);
+	SET_BIT(STCTRL,TICKINT);
+	CLR_BIT(STCTRL,CLKSOURCE);*/
+	STCTRL = 0x00000007;
 	   
 }
  
@@ -81,8 +82,57 @@ void SysTick_Init(void)
 *******************************************************************************/
  void SysTick_Handler(void)
  {
-   SysTick_OVF_CBK_Ptr();
+   //SysTick_OVF_CBK_Ptr();
  }
+ /******************************************************************************
+* \Syntax          : 
+* \Description     :  
+*                                                       
+*                                                                             
+* \Sync\Async      :                                                
+* \Reentrancy      :                                             
+* \Parameters (in) : None                     
+* \Parameters (out): None                                                      
+* \Return value:   : None
+*******************************************************************************/
+ void STK_SetWait1mSec(void)
+{
+	STCTRL = 0x00;
+	STRELOAD &= ~((0xFFFFFF)<<0);
+	// write on reg (load time)
+	STRELOAD = 0x0001387F;		// setting 1ms/(1/80MHz) --> 80000
+	// START 
+	SET_BIT(STCTRL, ENABLE);
+	SET_BIT(STCTRL, CLKSOURCE);
+	while(GET_BIT(STCTRL,COUNTFLAG) == 0); 
+	STRELOAD = 0;
+	STCURRENT  = 0;
+	
+}
+  /******************************************************************************
+* \Syntax          : 
+* \Description     :  
+*                                                       
+*                                                                             
+* \Sync\Async      :                                                
+* \Reentrancy      :                                             
+* \Parameters (in) : None                     
+* \Parameters (out): None                                                      
+* \Return value:   : None
+*******************************************************************************/
+ 
+void STK_SetWait(uint32_t Time)
+{
+	//Time * 200 = sec
+	uint32_t i = Time*200;
+	while(i!=0)
+	{
+		STK_SetWait1mSec();
+		i--;
+	}
+	
+	
+}
 
 /**********************************************************************************************************************
  *  END OF FILE: SysTick.c
